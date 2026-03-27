@@ -72,3 +72,23 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+app.get('/api/db-check', async (req, res) => {
+  try {
+    // This command asks MongoDB to list all collections in your database
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    
+    res.json({
+      status: "Connected",
+      database: mongoose.connection.name,
+      collections_found: collections.map(c => c.name),
+      message: "Render is successfully talking to MongoDB Atlas!"
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      status: "Error", 
+      message: "Render failed to reach MongoDB", 
+      error: err.message 
+    });
+  }
+});

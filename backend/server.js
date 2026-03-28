@@ -70,23 +70,22 @@ app.post('/api/tts', async (req, res) => {
   } catch (err) { res.status(500).send("TTS Error"); }
 });
 // Final Session Close API
+// FINAL SESSION CLOSE API
 app.post('/api/session-close', async (req, res) => {
-  const { session_id, student_id, chapter_id, final_mastery } = req.body;
-  
+  const { session_id, student_id, chapter_id, final_mastery, status } = req.body;
   try {
-    // 1. Mark the session as completed in SessionLogs
+    // Marks all logs for this session as final/complete
     await SessionLog.updateMany(
-      { session_id },
-      { $set: { session_status: 'completed' } }
+      { session_id: session_id },
+      { $set: { session_status: status } }
     );
-
-    // 2. (Optional) Update a global 'StudentProgress' table for the Bigger Project
-    // This makes it easy for the main portal to see "Grade 7: Exponents" is 100%
-    console.log(`User ${student_id} finished ${chapter_id} with ${final_mastery}%`);
-
-    res.json({ success: true, message: "Final payload received and session closed." });
+    
+    // Optionally log to a master progress table
+    console.log(`SESSION CLOSED: Student ${student_id} finished ${chapter_id} with ${final_mastery}%`);
+    
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: "Failed to close session." });
+    res.status(500).json({ error: "Closure Failed" });
   }
 });
 

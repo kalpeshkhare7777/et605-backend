@@ -95,6 +95,16 @@ app.get('/api/questions/:kc/:diff', async (req, res) => {
   }
 });
 
+app.get('/api/admin/all-logs', async (req, res) => {
+  try {
+    // Sort by most recent first
+    const logs = await SessionLog.find().sort({ timestamp: -1 }).limit(50);
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 4. LEARNER: Sync Mastery Summary
 app.post('/api/sync-mastery', async (req, res) => {
   const { roll_number, subskill_id, p_l, consecutive_correct } = req.body;

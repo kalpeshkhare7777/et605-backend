@@ -69,5 +69,25 @@ app.post('/api/tts', async (req, res) => {
     res.set('Content-Type', 'audio/mpeg').send(Buffer.from(buffer));
   } catch (err) { res.status(500).send("TTS Error"); }
 });
+// Final Session Close API
+app.post('/api/session-close', async (req, res) => {
+  const { session_id, student_id, chapter_id, final_mastery } = req.body;
+  
+  try {
+    // 1. Mark the session as completed in SessionLogs
+    await SessionLog.updateMany(
+      { session_id },
+      { $set: { session_status: 'completed' } }
+    );
+
+    // 2. (Optional) Update a global 'StudentProgress' table for the Bigger Project
+    // This makes it easy for the main portal to see "Grade 7: Exponents" is 100%
+    console.log(`User ${student_id} finished ${chapter_id} with ${final_mastery}%`);
+
+    res.json({ success: true, message: "Final payload received and session closed." });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to close session." });
+  }
+});
 
 app.listen(5001, () => console.log("Server running on 5001"));
